@@ -21,6 +21,21 @@ export function StatusNOKEmbed(device) {
     return embed;
 }
 
+export function statusEmbed(datas) {
+    const embed = new EmbedBuilder()
+        .setTitle("Statut des serveurs")
+        .setDescription("Voici le statut des serveurs surveillés")
+        .setTimestamp();
+
+    for (const device in datas) {
+        if (datas.hasOwnProperty(device)) {
+            const data = datas[device];
+            embed.addField(`${data.name} - ${data.ip}`, data.alive ? `🟢 En ligne! (**${data.ping.toFixed(1)}**ms)` : (`🔴 Hors ligne` + (data.lastPing != "" ? `depuis ${time(data.lastPing, TimestampStyles.RelativeTime)} !` : " !")));
+        }
+    }
+
+    return embed;
+}
 
 export function actualTime() {
     const date = new Date();
