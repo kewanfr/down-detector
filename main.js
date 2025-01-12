@@ -2,14 +2,14 @@ import { userMention } from "discord.js";
 import config from "./config.js";
 import sendDiscordMessage from "./utils/sendMessage.js";
 import fs from "fs";
-import { pingHost, StatusNOKEmbed, StatusOKEmbed } from "./utils/functions.js";
+import { actualTime, pingHost, StatusNOKEmbed, StatusOKEmbed } from "./utils/functions.js";
 
 if (!fs.existsSync(config.files.DATA_FOLDER)) {
   fs.mkdirSync(config.files.DATA_FOLDER);
 }
 
 if (!fs.existsSync(config.files.DEVICES_FILE)) {
-  fs.writeFileSync(config.files.DEVICES_FILE, JSON.stringify({}));
+  fs.writeFileSync(config.files.DEVICES_FILE, JSON.stringify(config.devices));
 }
 
 function readData() {
@@ -26,41 +26,24 @@ function readData() {
 async function watchDevice(device) {
   const res = await pingHost(device.ip);
 
-  console.log(`Device ${device.name} - ${device.ip} is ${res.alive ? "alive" : "dead"} ${res.alive ? `with a ping of ${res.time}ms` : ""}`);
+  console.log(`[${actualTime()}] Device ${device.name} - ${device.ip} is ${res.alive ? "alive" : "dead"} ${res.alive ? `with a ping of ${res.time}ms` : ""}`);
 
-  let deviceData;
+  if (!device.lastPing) {
+    device.lastPing = "";
+  }
+
+  device.ping = res.time;
+
+  if (res.alive && (device.alive != res.alive)) {
+    sendDiscordMessage([StatusOKEmbed(device)], `${userMention(config.discord.USER_TO_MENTION_ID)}`);
+  } else if (!res.alive && (device.alive != res.alive)) {
+    sendDiscordMessage([StatusNOKEmbed(device)], `${userMention(config.discord.USER_TO_MENTION_ID)}`);
+  }
 
   const data = await readData();
-
-  if (data[device.name]) {
-    deviceData = data[device.name];
-  }
-
-  if (!data[device.name]) {
-
-    deviceData = {
-      alive: null,
-      lastPing: res.alive ? Math.floor(Date.now() / 1000) : "",
-      ping: res.time,
-      ip: device.ip,
-      name: device.name
-    }
-
-    data[device.name] = {
-      alive: null,
-      lastPing: res.alive ? Math.floor(Date.now() / 1000) : (data[device.name]?.lastPing || ""),
-      ping: res.time,
-      ip: device.ip,
-      name: device.name
-    };
-  }
-
-
-  if (res.alive && (deviceData.alive != res.alive)) {
-    sendDiscordMessage([StatusOKEmbed(data[device.name])], `${userMention(config.discord.USER_TO_MENTION_ID)}`);
-  } else if (!res.alive && (deviceData.alive != res.alive)) {
-    sendDiscordMessage([StatusNOKEmbed(data[device.name])], `${userMention(config.discord.USER_TO_MENTION_ID)}`);
-  }
+  data[device.name].alive = res.alive;
+  data[device.name].ping = res.time;
+  data[device.name].lastPing = res.alive ? Math.floor(Date.now() / 1000) : (data[device.name]?.lastPing || "");
 
   fs.writeFileSync(config.files.DEVICES_FILE, JSON.stringify(data));
 
@@ -69,17 +52,14 @@ async function watchDevice(device) {
 
 async function watch() {
 
-  const devices = config.devices;
+  const devices = await readData();
 
 
-  console.log("Watching devices...");
-  for (const device of devices) {
+  console.log(`[${actualTime()}] Watching devices...`);
+  for (const name in devices) {
+    const device = devices[name];
     await watchDevice(device);
   }
-
-
-
-
 
 }
 

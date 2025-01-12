@@ -1,4 +1,5 @@
 import config from "../config.js";
+import { actualTime } from "./functions.js";
 
 export default function sendDiscordMessage(embeds, content = null, components = null) {
     var params = {
@@ -25,8 +26,8 @@ export default function sendDiscordMessage(embeds, content = null, components = 
     }).then(async res => {
         if (!res.ok) {
             const errText = await res.text().catch(() => '');
-            throw new Error(`Echec webhook Discord: ${res.status} - ${errText}`);
+            throw new Error(`[${actualTime()}] Echec webhook Discord: ${res.status} - ${errText}`);
         }
-        console.log("Message envoyé");
+        console.log(`[${actualTime()}] Message envoyé`);
     })
 }

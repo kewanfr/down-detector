@@ -9,20 +9,20 @@ export default {
     DEVICES_FILE: "data/devices.json",
   },
 
-  devices: [
-    {
+  devices: {
+    "RPI": {
       name: "RPI",
       ip: "192.168.0.40"
     },
-    {
+    "PVE": {
       name: "PVE",
       ip: "192.168.0.153"
     },
-    {
+    "VM1 PVE": {
       name: "VM1 PVE",
       ip: "192.168.0.156"
     }
-  ],
+  },
 
   discord: {
     USER_TO_MENTION_ID: "355402435893919754",
