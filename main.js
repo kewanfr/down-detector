@@ -34,7 +34,7 @@ async function watchDevice(device) {
 
   device.ping = res.time;
 
-  let updated = false;
+  var updated = false;
 
   if (res.alive && (device.alive != res.alive)) {
     updated = true;
@@ -49,7 +49,7 @@ async function watchDevice(device) {
   data[device.name].ping = res.time;
   data[device.name].lastPing = res.alive ? Math.floor(Date.now() / 1000) : (data[device.name]?.lastPing || "");
 
-  fs.writeFileSync(config.files.DEVICES_FILE, JSON.stringify(data));
+  await fs.writeFileSync(config.files.DEVICES_FILE, JSON.stringify(data));
 
   return updated;
 }
@@ -65,7 +65,7 @@ const commands = [
     .setDescription("Ping all devices and update status message").toJSON(),
 ]
 
-async function watch() {
+async function watch(updateEmbed = false) {
 
   var devices = await readData();
 
@@ -82,12 +82,13 @@ async function watch() {
   for (const name in devices) {
     const device = devices[name];
     let res = await watchDevice(device);
+    console.log(`[${actualTime()}] Device ${device.name} - ${device.ip} updated: ${res}`);
     if (res) {
       updated = true;
     }
   }
 
-  if (updated) {
+  if (updated || updateEmbed) {
     devices = await readData();
 
     const embed = await statusEmbed(devices);
@@ -117,7 +118,12 @@ if (data?.length > 0) {
 }
 
 client.once(Events.ClientReady, readyClient => {
-	console.log(`Ready! Logged in as ${readyClient.user.tag}`);
+  console.log(`Ready! Logged in as ${readyClient.user.tag}`);
+  
+  watch();
+  setInterval(() => {
+    watch();
+  }, config.REFRESH_INTERVAL);
 });
 
 client.on(Events.InteractionCreate, async interaction => {
@@ -129,13 +135,9 @@ client.on(Events.InteractionCreate, async interaction => {
     await interaction.reply({ content: "🏓 Pong!", ephemeral: true });
   } else if (commandName === "update") {
     await interaction.reply({ content: "✅ Devices update started !", ephemeral: true });
-    await watch();
+    await watch(true);
   }
 });
 
 client.login(config.discord.TOKEN);
 
-watch();
-setInterval(() => {
-  watch();
-}, config.REFRESH_INTERVAL);
