@@ -34,9 +34,13 @@ async function watchDevice(device) {
 
   device.ping = res.time;
 
+  let updated = false;
+
   if (res.alive && (device.alive != res.alive)) {
+    updated = true;
     sendDiscordMessage([StatusOKEmbed(device)], `${userMention(config.discord.USER_ID)}`);
   } else if (!res.alive && (device.alive != res.alive)) {
+    updated = true;
     sendDiscordMessage([StatusNOKEmbed(device)], `${userMention(config.discord.USER_ID)}`);
   }
 
@@ -47,7 +51,7 @@ async function watchDevice(device) {
 
   fs.writeFileSync(config.files.DEVICES_FILE, JSON.stringify(data));
 
-  return res;
+  return updated;
 }
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
@@ -66,24 +70,29 @@ async function watch() {
   var devices = await readData();
 
 
+  let updated = false;
   console.log(`[${actualTime()}] Watching devices...`);
   for (const name in devices) {
     const device = devices[name];
-    await watchDevice(device);
+    let res = await watchDevice(device);
+    if (res) {
+      updated = true;
+    }
   }
 
-  devices = await readData();
+  if (updated) {
+    devices = await readData();
 
-  const embed = await statusEmbed(devices);
+    const embed = await statusEmbed(devices);
 
-  const message = await fetchStatusMessage(client);
+    const message = await fetchStatusMessage(client);
 
-  if (message) {
-    message.edit({ embeds: [embed] });
-  } else {
-    await client.channels.cache.find(channel => channel.name === config.discord.status_channel).send({ embeds: [embed] });
+    if (message) {
+      message.edit({ embeds: [embed] });
+    } else {
+      await client.channels.cache.find(channel => channel.name === config.discord.status_channel).send({ embeds: [embed] });
+    }
   }
-
   return true;
 }
 
