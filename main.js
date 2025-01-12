@@ -1,8 +1,8 @@
-import { userMention } from "discord.js";
+import { Client, Events, GatewayIntentBits, userMention } from "discord.js";
 import config from "./config.js";
 import sendDiscordMessage from "./utils/sendMessage.js";
 import fs from "fs";
-import { actualTime, pingHost, StatusNOKEmbed, StatusOKEmbed } from "./utils/functions.js";
+import { actualTime, fetchStatusMessage, pingHost, statusEmbed, StatusNOKEmbed, StatusOKEmbed } from "./utils/functions.js";
 
 if (!fs.existsSync(config.files.DATA_FOLDER)) {
   fs.mkdirSync(config.files.DATA_FOLDER);
@@ -50,9 +50,12 @@ async function watchDevice(device) {
   return res;
 }
 
+
+const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+
 async function watch() {
 
-  const devices = await readData();
+  var devices = await readData();
 
 
   console.log(`[${actualTime()}] Watching devices...`);
@@ -61,7 +64,27 @@ async function watch() {
     await watchDevice(device);
   }
 
+  devices = await readData();
+
+  const embed = await statusEmbed(devices);
+
+  const message = await fetchStatusMessage(client);
+
+
+  if (message) {
+    message.edit({ embeds: [embed] });
+    return;
+  } else {
+    await client.channels.cache.find(channel => channel.name === config.discord.status_channel).send({ embeds: [embed] });
+  }
+
 }
+
+
+client.once(Events.ClientReady, readyClient => {
+	console.log(`Ready! Logged in as ${readyClient.user.tag}`);
+});
+client.login(config.discord.TOKEN);
 
 watch();
 setInterval(() => {
