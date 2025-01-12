@@ -1,6 +1,6 @@
 import config from "../config.js";
 
-export default function sendDiscordMessage(embeds, content = null, channel = 1, components = null) {
+export default function sendDiscordMessage(embeds, content = null, components = null) {
     var params = {
         username: "Down Detector",
         avatar_url: config.discord.avatarURL,
@@ -16,7 +16,7 @@ export default function sendDiscordMessage(embeds, content = null, channel = 1, 
         params.components = components
     }
 
-    fetch(config.discord.webhookURL[channel], {
+    fetch(config.discord.webhookURL, {
         method: "POST",
         headers: {
             'Content-type': 'application/json'
@@ -24,8 +24,8 @@ export default function sendDiscordMessage(embeds, content = null, channel = 1, 
         body: JSON.stringify(params)
     }).then(async res => {
         if (!res.ok) {
-            const errText = await response.text().catch(() => '');
-            throw new Error(`Echec webhook Discord: ${response.status} - ${errText}`);
+            const errText = await res.text().catch(() => '');
+            throw new Error(`Echec webhook Discord: ${res.status} - ${errText}`);
         }
         console.log("Message envoyé");
     })
