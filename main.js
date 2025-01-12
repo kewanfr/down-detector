@@ -1,4 +1,4 @@
-import { Client, Events, GatewayIntentBits, userMention } from "discord.js";
+import { Client, Events, GatewayIntentBits, REST, Routes, SlashCommandBuilder, userMention } from "discord.js";
 import config from "./config.js";
 import sendDiscordMessage from "./utils/sendMessage.js";
 import fs from "fs";
@@ -35,9 +35,9 @@ async function watchDevice(device) {
   device.ping = res.time;
 
   if (res.alive && (device.alive != res.alive)) {
-    sendDiscordMessage([StatusOKEmbed(device)], `${userMention(config.discord.USER_TO_MENTION_ID)}`);
+    sendDiscordMessage([StatusOKEmbed(device)], `${userMention(config.discord.USER_ID)}`);
   } else if (!res.alive && (device.alive != res.alive)) {
-    sendDiscordMessage([StatusNOKEmbed(device)], `${userMention(config.discord.USER_TO_MENTION_ID)}`);
+    sendDiscordMessage([StatusNOKEmbed(device)], `${userMention(config.discord.USER_ID)}`);
   }
 
   const data = await readData();
@@ -50,8 +50,16 @@ async function watchDevice(device) {
   return res;
 }
 
-
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+
+const commands = [
+  new SlashCommandBuilder()
+    .setName("ping")
+    .setDescription("Replies with Pong!").toJSON(),
+  new SlashCommandBuilder()
+    .setName("update")
+    .setDescription("Ping all devices and update status message").toJSON(),
+]
 
 async function watch() {
 
@@ -70,20 +78,45 @@ async function watch() {
 
   const message = await fetchStatusMessage(client);
 
-
   if (message) {
     message.edit({ embeds: [embed] });
-    return;
   } else {
     await client.channels.cache.find(channel => channel.name === config.discord.status_channel).send({ embeds: [embed] });
   }
 
+  return true;
 }
 
+const rest = new REST({ version: '10' }).setToken(config.discord.TOKEN);
+
+const data = await rest.put(
+  Routes.applicationGuildCommands(config.discord.CLIENT_ID, config.discord.GUILD_ID),
+  { body: commands },
+);
+
+if (data?.length > 0) {
+  console.log(`[${actualTime()}] Successfully registered application commands.`);
+} else {
+  console.error(`[${actualTime()}] Error registering application commands.`);
+}
 
 client.once(Events.ClientReady, readyClient => {
 	console.log(`Ready! Logged in as ${readyClient.user.tag}`);
 });
+
+client.on(Events.InteractionCreate, async interaction => {
+  if (!interaction.isCommand()) return;
+
+  const { commandName } = interaction;
+
+  if (commandName === "ping") {
+    await interaction.reply({ content: "🏓 Pong!", ephemeral: true });
+  } else if (commandName === "update") {
+    await interaction.reply({ content: "✅ Devices update started !", ephemeral: true });
+    await watch();
+  }
+});
+
 client.login(config.discord.TOKEN);
 
 watch();

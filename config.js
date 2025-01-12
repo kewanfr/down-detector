@@ -25,8 +25,11 @@ export default {
   },
 
   discord: {
-    USER_TO_MENTION_ID: "355402435893919754",
+    CLIENT_ID: "1327786761039904798",
+    USER_ID: "355402435893919754",
+    GUILD_ID: "704411388549922847",
     TOKEN: process.env.DISCORD_TOKEN,
+
     status_channel: "status",
     avatarURL: "https://cdn6.aptoide.com/imgs/4/8/a/48a4623c799ef8b7c34c8713b0612440_icon.png",
     webhookURL: process.env.DISCORD_WEBHOOK_URL_,

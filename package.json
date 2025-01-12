@@ -1,6 +1,6 @@
 {
   "name": "down-detector",
-  "version": "1.0.0",
+  "version": "1.5.5",
   "description": "Simple utility to detect if my network is down or not",
   "main": "main.js",
   "scripts": {
