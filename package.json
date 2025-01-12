@@ -4,7 +4,8 @@
   "description": "Simple utility to detect if my network is down or not",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "update": "git pull && pm2 restart DOWN && pm2 logs DOWN"
   },
   "type": "module",
   "author": "kewanfr",
