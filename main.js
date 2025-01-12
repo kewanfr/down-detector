@@ -26,6 +26,8 @@ function readData() {
 async function watchDevice(device) {
   const res = await pingHost(device.ip);
 
+  console.log(`Device ${device.name} - ${device.ip} is ${res.alive ? "alive" : "dead"} ${res.alive ? `with a ping of ${res.time}ms` : ""}`);
+
   let deviceData;
 
   const data = await readData();
@@ -54,7 +56,6 @@ async function watchDevice(device) {
   }
 
 
-
   if (res.alive && (deviceData.alive != res.alive)) {
     sendDiscordMessage([StatusOKEmbed(data[device.name])], `${userMention(config.discord.USER_TO_MENTION_ID)}`);
   } else if (!res.alive && (deviceData.alive != res.alive)) {
@@ -70,10 +71,15 @@ async function watch() {
 
   const devices = config.devices;
 
-  devices.forEach(async (device) => {
+
+  console.log("Watching devices...");
+  for (const device of devices) {
     await watchDevice(device);
   }
-  );
+
+
+
+
 
 }
 
