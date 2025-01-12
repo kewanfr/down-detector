@@ -37,7 +37,7 @@ async function watchDevice(device) {
   if (!data[device.name]) {
 
     deviceData = {
-      alive: res.alive,
+      alive: null,
       lastPing: res.alive ? Math.floor(Date.now() / 1000) : "",
       ping: res.time,
       ip: device.ip,
