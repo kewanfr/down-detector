@@ -69,6 +69,13 @@ async function watch() {
 
   var devices = await readData();
 
+  for (const name in config.devices) {
+    if (!devices[name]) {
+      devices[name] = config.devices[name];
+    }
+  }
+
+  await fs.writeFileSync(config.files.DEVICES_FILE, JSON.stringify(devices));
 
   let updated = false;
   console.log(`[${actualTime()}] Watching devices...`);
