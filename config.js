@@ -10,6 +10,11 @@ export default {
   },
 
   devices: {
+    "NAS":
+    {
+      name: "NAS",
+      ip: "192.168.0.39"
+    },
     "RPI": {
       name: "RPI",
       ip: "192.168.0.40"
