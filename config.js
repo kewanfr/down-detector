@@ -35,5 +35,5 @@ export default {
     webhookURL: process.env.DISCORD_WEBHOOK_URL_,
   },
 
-  REFRESH_INTERVAL: 1000*60*5 // 15 minutes (100ms * 60s * 5min)
+  REFRESH_INTERVAL: 1000*60*1 // 1 minute (100ms * 60s * 1min)
 }
