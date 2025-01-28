@@ -28,6 +28,8 @@ export default {
     }
   },
 
+  UPDATE_WEBHOOK_URL: process.env.UPDATE_WEBHOOK_URL || "http://192.168.0.40:3000/update",
+
   discord: {
     CLIENT_ID: "1327786761039904798",
     USER_ID: "355402435893919754",

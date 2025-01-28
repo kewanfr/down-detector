@@ -1,8 +1,23 @@
-import { Client, Events, GatewayIntentBits, REST, Routes, SlashCommandBuilder, userMention } from "discord.js";
+import {
+  Client,
+  Events,
+  GatewayIntentBits,
+  REST,
+  Routes,
+  SlashCommandBuilder,
+  userMention,
+} from "discord.js";
 import config from "./config.js";
 import sendDiscordMessage from "./utils/sendMessage.js";
 import fs from "fs";
-import { actualTime, fetchStatusMessage, pingHost, statusEmbed, StatusNOKEmbed, StatusOKEmbed } from "./utils/functions.js";
+import {
+  actualTime,
+  fetchStatusMessage,
+  pingHost,
+  statusEmbed,
+  StatusNOKEmbed,
+  StatusOKEmbed,
+} from "./utils/functions.js";
 import sendMail from "./utils/sendMail.js";
 
 if (!fs.existsSync(config.files.DATA_FOLDER)) {
@@ -15,19 +30,23 @@ if (!fs.existsSync(config.files.DEVICES_FILE)) {
 
 function readData() {
   return new Promise((resolve, reject) => {
-      fs.readFile(config.files.DEVICES_FILE, (err, data) => {
-          if (err) {
-              reject(err);
-          }
-          resolve(JSON.parse(data));
-      });
+    fs.readFile(config.files.DEVICES_FILE, (err, data) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(JSON.parse(data));
+    });
   });
 }
 
 async function watchDevice(device) {
   const res = await pingHost(device.ip);
 
-  console.log(`[${actualTime()}] Device ${device.name} - ${device.ip} is ${res.alive ? "alive" : "dead"} ${res.alive ? `with a ping of ${res.time}ms` : ""}`);
+  console.log(
+    `[${actualTime()}] Device ${device.name} - ${device.ip} is ${
+      res.alive ? "alive" : "dead"
+    } ${res.alive ? `with a ping of ${res.time}ms` : ""}`
+  );
 
   if (!device.lastPing) {
     device.lastPing = "";
@@ -37,27 +56,35 @@ async function watchDevice(device) {
 
   var updated = false;
 
-  if (res.alive && (device.alive != res.alive)) {
+  if (res.alive && device.alive != res.alive) {
     updated = true;
-    sendDiscordMessage([StatusOKEmbed(device)], `${userMention(config.discord.USER_ID)}`);
+    sendDiscordMessage(
+      [StatusOKEmbed(device)],
+      `${userMention(config.discord.USER_ID)}`
+    );
 
     const last_ping = new Date(device.lastPing * 1000);
 
-    const last_ping_str = last_ping.toLocaleString("fr-FR", { timeZone: "Europe/Paris" });
-      
+    const last_ping_str = last_ping.toLocaleString("fr-FR", {
+      timeZone: "Europe/Paris",
+    });
+
     var subject = `🟢 [UP] ${device.name} - ${device.ip} est de nouveau en ligne !`;
-    var text = `Le serveur ${device.name} - ${device.ip} est de nouveau en ligne !\n\nPing: ${res.time}ms\n\nDernier ping: ${last_ping_str}`; 
+    var text = `Le serveur ${device.name} - ${device.ip} est de nouveau en ligne !\n\nPing: ${res.time}ms\n\nDernier ping: ${last_ping_str}`;
 
     sendMail("mail@kewan.fr", subject, text);
-
-  } else if (!res.alive && (device.alive != res.alive)) {
+  } else if (!res.alive && device.alive != res.alive) {
     updated = true;
-    sendDiscordMessage([StatusNOKEmbed(device)], `${userMention(config.discord.USER_ID)}`);
-
+    sendDiscordMessage(
+      [StatusNOKEmbed(device)],
+      `${userMention(config.discord.USER_ID)}`
+    );
 
     const last_ping = new Date(device.lastPing * 1000);
 
-    const last_ping_str = last_ping.toLocaleString("fr-FR", { timeZone: "Europe/Paris" });
+    const last_ping_str = last_ping.toLocaleString("fr-FR", {
+      timeZone: "Europe/Paris",
+    });
     var subject = `🔴 [DOWN] ${device.name} - ${device.ip} est hors ligne !`;
     var text = `Le serveur ${device.name} - ${device.ip} est <b style="text-decoration: underline;">hors ligne</b> !\n\nDernier ping: ${last_ping_str}`;
 
@@ -67,11 +94,34 @@ async function watchDevice(device) {
   const data = await readData();
   data[device.name].alive = res.alive;
   data[device.name].ping = res.time;
-  data[device.name].lastPing = res.alive ? Math.floor(Date.now() / 1000) : (data[device.name]?.lastPing || "");
+  data[device.name].lastPing = res.alive
+    ? Math.floor(Date.now() / 1000)
+    : data[device.name]?.lastPing || "";
 
   await fs.writeFileSync(config.files.DEVICES_FILE, JSON.stringify(data));
 
   return updated;
+}
+
+async function sendWebhookUpdate() {
+  return new Promise((resolve, reject) => {
+    fetch(config.UPDATE_WEBHOOK_URL, {
+      method: "GET",
+      headers: {
+        "Content-type": "application/json",
+      },
+      body: JSON.stringify(params),
+    }).then(async (res) => {
+      if (!res.ok) {
+        console.error(
+          `[${actualTime()}] Echec webhook Discord: ${res.status} - ${errText}`
+        );
+        reject(false);
+      }
+      console.log(`[${actualTime()}] Update Notes envoyé`);
+      resolve(true);
+    });
+  });
 }
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
@@ -79,14 +129,15 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 const commands = [
   new SlashCommandBuilder()
     .setName("ping")
-    .setDescription("Replies with Pong!").toJSON(),
+    .setDescription("Replies with Pong!")
+    .toJSON(),
   new SlashCommandBuilder()
     .setName("update")
-    .setDescription("Ping all devices and update status message").toJSON(),
-]
+    .setDescription("Ping all devices and update status message")
+    .toJSON(),
+];
 
 async function watch(updateEmbed = false) {
-
   var devices = await readData();
 
   for (const name in config.devices) {
@@ -102,7 +153,9 @@ async function watch(updateEmbed = false) {
   for (const name in devices) {
     const device = devices[name];
     let res = await watchDevice(device);
-    console.log(`[${actualTime()}] Device ${device.name} - ${device.ip} updated: ${res}`);
+    console.log(
+      `[${actualTime()}] Device ${device.name} - ${device.ip} updated: ${res}`
+    );
     if (res) {
       updated = true;
     }
@@ -118,35 +171,42 @@ async function watch(updateEmbed = false) {
     if (message) {
       message.edit({ embeds: [embed] });
     } else {
-      await client.channels.cache.find(channel => channel.name === config.discord.status_channel).send({ embeds: [embed] });
+      await client.channels.cache
+        .find((channel) => channel.name === config.discord.status_channel)
+        .send({ embeds: [embed] });
     }
   }
   return true;
 }
 
-const rest = new REST({ version: '10' }).setToken(config.discord.TOKEN);
+const rest = new REST({ version: "10" }).setToken(config.discord.TOKEN);
 
 const data = await rest.put(
-  Routes.applicationGuildCommands(config.discord.CLIENT_ID, config.discord.GUILD_ID),
-  { body: commands },
+  Routes.applicationGuildCommands(
+    config.discord.CLIENT_ID,
+    config.discord.GUILD_ID
+  ),
+  { body: commands }
 );
 
 if (data?.length > 0) {
-  console.log(`[${actualTime()}] Successfully registered application commands.`);
+  console.log(
+    `[${actualTime()}] Successfully registered application commands.`
+  );
 } else {
   console.error(`[${actualTime()}] Error registering application commands.`);
 }
 
-client.once(Events.ClientReady, readyClient => {
+client.once(Events.ClientReady, (readyClient) => {
   console.log(`Ready! Logged in as ${readyClient.user.tag}`);
-  
+
   watch(true);
   setInterval(() => {
     watch();
   }, config.REFRESH_INTERVAL);
 });
 
-client.on(Events.InteractionCreate, async interaction => {
+client.on(Events.InteractionCreate, async (interaction) => {
   if (!interaction.isCommand()) return;
 
   const { commandName } = interaction;
@@ -154,10 +214,13 @@ client.on(Events.InteractionCreate, async interaction => {
   if (commandName === "ping") {
     await interaction.reply({ content: "🏓 Pong!", ephemeral: true });
   } else if (commandName === "update") {
-    await interaction.reply({ content: "✅ Devices update started !", ephemeral: true });
+    sendWebhookUpdate();
+    await interaction.reply({
+      content: "✅ Devices update started !",
+      ephemeral: true,
+    });
     await watch(true);
   }
 });
 
 client.login(config.discord.TOKEN);
-
