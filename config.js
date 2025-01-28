@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 dotenv.config({ path: '.env' });
 
 export default {
-
+  GMAIL_CODE: process.env.GMAIL_CODE,
   files: {
     DATA_FOLDER: "data",
     DEVICES_FILE: "data/devices.json",

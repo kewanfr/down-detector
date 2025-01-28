@@ -3,6 +3,7 @@ import config from "./config.js";
 import sendDiscordMessage from "./utils/sendMessage.js";
 import fs from "fs";
 import { actualTime, fetchStatusMessage, pingHost, statusEmbed, StatusNOKEmbed, StatusOKEmbed } from "./utils/functions.js";
+import sendMail from "./utils/sendMail.js";
 
 if (!fs.existsSync(config.files.DATA_FOLDER)) {
   fs.mkdirSync(config.files.DATA_FOLDER);
@@ -39,9 +40,24 @@ async function watchDevice(device) {
   if (res.alive && (device.alive != res.alive)) {
     updated = true;
     sendDiscordMessage([StatusOKEmbed(device)], `${userMention(config.discord.USER_ID)}`);
+
+    const last_ping = new Date(device.lastPing * 1000);
+
+    const last_ping_str = last_ping.toLocaleString("fr-FR", { timeZone: "Europe/Paris" });
+      
+    var subject = `🟢 [UP] ${device.name} - ${device.ip} est de nouveau en ligne !`;
+    var text = `Le serveur ${device.name} - ${device.ip} est de nouveau en ligne !\n\nPing: ${res.time}ms\n\nDernier ping: ${last_ping_str}`; 
+
+    sendMail("mail@kewan.fr", subject, text);
+
   } else if (!res.alive && (device.alive != res.alive)) {
     updated = true;
     sendDiscordMessage([StatusNOKEmbed(device)], `${userMention(config.discord.USER_ID)}`);
+
+    var subject = `🔴 [DOWN] ${device.name} - ${device.ip} est hors ligne !`;
+    var text = `Le serveur ${device.name} - ${device.ip} est hors ligne !\n\nDernier ping: ${device.lastPing != "" ? time(device.lastPing, TimestampStyles.RelativeTime) : "Inconnu"}`;
+
+    sendMail("mail@kewan.fr", subject, text);
   }
 
   const data = await readData();
