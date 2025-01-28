@@ -110,8 +110,7 @@ async function sendWebhookUpdate() {
       method: "GET",
       headers: {
         "Content-type": "application/json",
-      },
-      body: JSON.stringify(params),
+      }
     }).then(async (res) => {
       if (!res.ok) {
         console.error(
