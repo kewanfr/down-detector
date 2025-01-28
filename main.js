@@ -6,6 +6,7 @@ import {
   Routes,
   SlashCommandBuilder,
   userMention,
+  Partials
 } from "discord.js";
 import config from "./config.js";
 import sendDiscordMessage from "./utils/sendMessage.js";
@@ -20,6 +21,15 @@ import {
   statusUpdateButton,
 } from "./utils/functions.js";
 import sendMail from "./utils/sendMail.js";
+const {
+  Channel,
+  GuildMember,
+  Message,
+  Reaction,
+  ThreadMember,
+  User,
+  GuildScheduledEvent,
+} = Partials;
 
 if (!fs.existsSync(config.files.DATA_FOLDER)) {
   fs.mkdirSync(config.files.DATA_FOLDER);
@@ -125,7 +135,20 @@ async function sendWebhookUpdate() {
   });
 }
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+// const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({
+  intents: 3276799,
+  partials: [
+    Channel,
+    GuildMember,
+    Message,
+    Reaction,
+    ThreadMember,
+    User,
+    GuildScheduledEvent,
+  ],
+  allowedMentions: { parse: ["everyone", "roles", "users"] },
+});
 
 const commands = [
   new SlashCommandBuilder()
@@ -212,6 +235,8 @@ client.on(Events.InteractionCreate, async (interaction) => {
   if (!interaction.isCommand()) return;
 
   const { commandName } = interaction;
+
+  console.log(`Command: ${commandName}`);
 
   if (commandName === "ping") {
     await interaction.reply({ content: "🏓 Pong!", ephemeral: true });
