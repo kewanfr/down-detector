@@ -232,6 +232,13 @@ client.once(Events.ClientReady, (readyClient) => {
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
+
+  if (interaction.isButton() && interaction.customId === "status_update") {
+    await interaction.deferUpdate();
+    await watch(true);
+    sendWebhookUpdate();
+  }
+
   if (!interaction.isCommand()) return;
 
   const { commandName } = interaction;
@@ -247,10 +254,6 @@ client.on(Events.InteractionCreate, async (interaction) => {
       ephemeral: true,
     });
     await watch(true);
-  } else if (interaction.customId === "status_update") {
-    await interaction.deferUpdate();
-    await watch(true);
-    sendWebhookUpdate();
   }
 });
 
