@@ -222,6 +222,10 @@ client.on(Events.InteractionCreate, async (interaction) => {
       ephemeral: true,
     });
     await watch(true);
+  } else if (interaction.isButton() && interaction.customId === "status_update") {
+    await interaction.deferUpdate();
+    await watch(true);
+    sendWebhookUpdate();
   }
 });
 
