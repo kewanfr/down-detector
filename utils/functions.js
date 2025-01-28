@@ -1,4 +1,4 @@
-import { EmbedBuilder, time, TimestampStyles } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, time, TimestampStyles } from "discord.js";
 import ping from "ping";
 export function StatusOKEmbed(device) {
     const embed = new EmbedBuilder()
@@ -36,6 +36,19 @@ export function statusEmbed(datas) {
     }
 
     return embed;
+}
+
+export function statusUpdateButton() {
+    const button = new ButtonBuilder()
+        .setCustomId("status_update")
+        .setLabel("Mettre à jour")
+        .setEmoji("🔄")
+        .setStyle(ButtonStyle.Primary);
+    
+    const row = new ActionRowBuilder()
+        .addComponents(button);
+
+    return row;
 }
 
 export async function getStatusChannel(client) {

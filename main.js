@@ -165,15 +165,16 @@ async function watch(updateEmbed = false) {
     devices = await readData();
 
     const embed = await statusEmbed(devices);
+    const row = await statusUpdateButton();
 
     const message = await fetchStatusMessage(client);
 
     if (message) {
-      message.edit({ embeds: [embed] });
+      message.edit({ embeds: [embed], components: [row] });
     } else {
       await client.channels.cache
         .find((channel) => channel.name === config.discord.status_channel)
-        .send({ embeds: [embed] });
+        .send({ embeds: [embed], components: [row] });
     }
   }
   return true;
