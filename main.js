@@ -54,8 +54,14 @@ async function watchDevice(device) {
     updated = true;
     sendDiscordMessage([StatusNOKEmbed(device)], `${userMention(config.discord.USER_ID)}`);
 
+
+
+
+    const last_ping = new Date(device.lastPing * 1000);
+
+    const last_ping_str = last_ping.toLocaleString("fr-FR", { timeZone: "Europe/Paris" });
     var subject = `🔴 [DOWN] ${device.name} - ${device.ip} est hors ligne !`;
-    var text = `Le serveur ${device.name} - ${device.ip} est hors ligne !\n\nDernier ping: ${device.lastPing != "" ? time(device.lastPing, TimestampStyles.RelativeTime) : "Inconnu"}`;
+    var text = `Le serveur ${device.name} - ${device.ip} est hors ligne !\n\nDernier ping: ${last_ping_str}`;
 
     sendMail("mail@kewan.fr", subject, text);
   }
