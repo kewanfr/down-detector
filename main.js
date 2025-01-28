@@ -104,6 +104,7 @@ async function watchDevice(device) {
 }
 
 async function sendWebhookUpdate() {
+  console.log(`[${actualTime()}] Sending update webhook...`);
   return new Promise((resolve, reject) => {
     fetch(config.UPDATE_WEBHOOK_URL, {
       method: "GET",
