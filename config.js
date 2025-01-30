@@ -28,7 +28,7 @@ export default {
     },
     "VM COURS Mint": {
       name: "VM COURS Mint",
-      ip: "192.168.0.156"
+      ip: "192.168.0.134"
     }
   },
 
