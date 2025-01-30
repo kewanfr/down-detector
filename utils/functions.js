@@ -35,6 +35,8 @@ export function statusEmbed(datas) {
         }
     }
 
+    embed.setDescription(`Mis à jour ${time(Date.now(), TimestampStyles.RelativeTime)}`);
+
     return embed;
 }
 
