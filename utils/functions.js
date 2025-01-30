@@ -35,7 +35,7 @@ export function statusEmbed(datas) {
         }
     }
 
-    embed.setDescription(`Mis à jour ${time(Date.now(), TimestampStyles.RelativeTime)}`);
+    embed.setDescription(`Mis à jour ${time(Date.now() / 1000, TimestampStyles.RelativeTime)}`);
 
     return embed;
 }
@@ -65,7 +65,7 @@ export function statusButtonsRows() {
         .setEmoji("🔵")
         .setStyle(ButtonStyle.Secondary);
     
-    const row1 = new ActionRowBuilder()
+    const row2 = new ActionRowBuilder()
         .addComponents(startMintButton)
         .addComponents(stopMintButton)
         .addComponents(restartMintButton);
@@ -88,7 +88,7 @@ export function statusButtonsRows() {
         .setEmoji("🔵")
         .setStyle(ButtonStyle.Secondary);
     
-    const row2 = new ActionRowBuilder()
+    const row1 = new ActionRowBuilder()
         .addComponents(startVM1Button)
         .addComponents(stopVM1Button)
         .addComponents(restartVM1Button);

@@ -205,7 +205,7 @@ const serverAction = async (serverId, action = "start") => {
 
   setTimeout(() => {
     watch(true);
-  }, 5000);
+  }, 15000);
 
   return err
 }
