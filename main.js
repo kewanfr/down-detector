@@ -159,12 +159,13 @@ const proxmoxClient = proxmoxApi({
   tokenSecret: config.PVE.API_SECRET
 });
 
-const serverAction = (serverId, action = "start") => {
+const serverAction = async (serverId, action = "start") => {
   switch (action) {
     case "start":
       try {
         
-        proxmoxClient.nodes.$("pve").qemu.$(serverId).status.start;
+        let res = await proxmoxClient.nodes.$("pve").qemu.$(serverId).status.start;
+        console.log(res);
         return true
       } catch (error) {
         return false
@@ -174,7 +175,8 @@ const serverAction = (serverId, action = "start") => {
     case "stop":
       try {
         
-        proxmoxClient.nodes.$("pve").qemu.$(serverId).status.stop;
+        let res = await proxmoxClient.nodes.$("pve").qemu.$(serverId).status.stop;
+        console.log(res);
         return true
       } catch (error) {
         return false
@@ -184,7 +186,8 @@ const serverAction = (serverId, action = "start") => {
     case "restart":
       try {
         
-        proxmoxClient.nodes.$("pve").qemu.$(serverId).status.reboot;
+        let res = await proxmoxClient.nodes.$("pve").qemu.$(serverId).status.reboot;
+        console.log(res);
         return true
       } catch (error) {
         return false
