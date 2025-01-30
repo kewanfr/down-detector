@@ -165,7 +165,7 @@ const serverAction = async (serverId, action = "start") => {
     case "start":
       try {
         
-        let res = await proxmoxClient.nodes.$("pve").qemu.$(serverId).status.start;
+        let res = await proxmoxClient.nodes.$("pve").qemu.$(serverId).status.start.$post();
         console.log(res);
         return true
       } catch (error) {
@@ -176,7 +176,7 @@ const serverAction = async (serverId, action = "start") => {
     case "stop":
       try {
         
-        let res = await proxmoxClient.nodes.$("pve").qemu.$(serverId).status.stop;
+        let res = await proxmoxClient.nodes.$("pve").qemu.$(serverId).status.stop.$post();
         console.log(res);
         return true
       } catch (error) {
@@ -187,7 +187,7 @@ const serverAction = async (serverId, action = "start") => {
     case "restart":
       try {
         
-        let res = await proxmoxClient.nodes.$("pve").qemu.$(serverId).status.reboot;
+        let res = await proxmoxClient.nodes.$("pve").qemu.$(serverId).status.reboot.$post();
         console.log(res);
         return true
       } catch (error) {
