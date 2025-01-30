@@ -38,17 +38,64 @@ export function statusEmbed(datas) {
     return embed;
 }
 
-export function statusUpdateButton() {
-    const button = new ButtonBuilder()
+export function statusButtonsRows() {
+    const buttonUpdate = new ButtonBuilder()
         .setCustomId("status_update")
         .setLabel("Mettre à jour")
         .setEmoji("🔄")
         .setStyle(ButtonStyle.Primary);
     
-    const row = new ActionRowBuilder()
-        .addComponents(button);
+    const startMintButton = new ButtonBuilder()
+        .setCustomId("start_mint")
+        .setLabel("Démarrer Mint COURS")
+        .setEmoji("🟢")
+        .setStyle(ButtonStyle.Success);
+    
+    const stopMintButton = new ButtonBuilder()
+        .setCustomId("stop_mint")
+        .setLabel("Arrêter Mint COURS")
+        .setEmoji("🔴")
+        .setStyle(ButtonStyle.Danger);
+    
+    const restartMintButton = new ButtonBuilder()
+        .setCustomId("restart_mint")
+        .setLabel("Redémarrer Mint COURS")
+        .setEmoji("🔵")
+        .setStyle(ButtonStyle.Secondary);
+    
+    const row1 = new ActionRowBuilder()
+        .addComponents(startMintButton)
+        .addComponents(stopMintButton)
+        .addComponents(restartMintButton);
+    
+    const startVM1Button = new ButtonBuilder()
+        .setCustomId("start_vm1")
+        .setLabel("Démarrer VM1 PVE")
+        .setEmoji("🟢")
+        .setStyle(ButtonStyle.Success);
+    
+    const stopVM1Button = new ButtonBuilder()
+        .setCustomId("stop_vm1")
+        .setLabel("Arrêter VM1 PVE")
+        .setEmoji("🔴")
+        .setStyle(ButtonStyle.Danger);
+    
+    const restartVM1Button = new ButtonBuilder()
+        .setCustomId("restart_vm1")
+        .setLabel("Redémarrer VM1 PVE")
+        .setEmoji("🔵")
+        .setStyle(ButtonStyle.Secondary);
+    
+    const row2 = new ActionRowBuilder()
+        .addComponents(startVM1Button)
+        .addComponents(stopVM1Button)
+        .addComponents(restartVM1Button);
+    
+    const row3 = new ActionRowBuilder()
+        .addComponents(buttonUpdate);
 
-    return row;
+
+    return [row1, row2, row3];
 }
 
 export async function getStatusChannel(client) {

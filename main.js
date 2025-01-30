@@ -15,12 +15,13 @@ import {
   actualTime,
   fetchStatusMessage,
   pingHost,
+  statusButtonsRows,
   statusEmbed,
   StatusNOKEmbed,
   StatusOKEmbed,
-  statusUpdateButton,
 } from "./utils/functions.js";
 import sendMail from "./utils/sendMail.js";
+import proxmoxApi from "proxmox-api";
 const {
   Channel,
   GuildMember,
@@ -150,6 +151,53 @@ const client = new Client({
   allowedMentions: { parse: ["everyone", "roles", "users"] },
 });
 
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+
+const proxmoxClient = proxmoxApi({
+  host: config.PVE.HOST,
+  tokenID: config.PVE.API_ID,
+  tokenSecret: config.PVE.API_SECRET
+});
+https://pve:8006/api2/extjs/nodes/pve/qemu/110/status/start
+const serverAction = (serverId, action = "start") => {
+  switch (action) {
+    case "start":
+      try {
+        
+        proxmoxClient.nodes.$("pve").qemu.$(serverId).status.start;
+        return true
+      } catch (error) {
+        return false
+      }
+      break;
+    
+    case "stop":
+      try {
+        
+        proxmoxClient.nodes.$("pve").qemu.$(serverId).status.stop;
+        return true
+      } catch (error) {
+        return false
+      }
+      break;
+    
+    case "restart":
+      try {
+        
+        proxmoxClient.nodes.$("pve").qemu.$(serverId).status.reboot;
+        return true
+      } catch (error) {
+        return false
+      }
+      break;
+  
+    default:
+      console.log(`Action ${action} inconnue sur la vm ${serverId}`);
+      return false
+      break;
+  }
+}
+
 const commands = [
   new SlashCommandBuilder()
     .setName("ping")
@@ -189,16 +237,16 @@ async function watch(updateEmbed = false) {
     devices = await readData();
 
     const embed = await statusEmbed(devices);
-    const row = await statusUpdateButton();
+    const rows = await statusButtonsRows();
 
     const message = await fetchStatusMessage(client);
 
     if (message) {
-      message.edit({ embeds: [embed], components: [row] });
+      message.edit({ embeds: [embed], components: rows });
     } else {
       await client.channels.cache
         .find((channel) => channel.name === config.discord.status_channel)
-        .send({ embeds: [embed], components: [row] });
+        .send({ embeds: [embed], components: rows });
     }
   }
   return true;
@@ -233,10 +281,76 @@ client.once(Events.ClientReady, (readyClient) => {
 
 client.on(Events.InteractionCreate, async (interaction) => {
 
-  if (interaction.isButton() && interaction.customId === "status_update") {
-    await interaction.deferUpdate();
-    await watch(true);
-    sendWebhookUpdate();
+  if (interaction.isButton()) {
+    switch (interaction.customId) {
+      case "status_update":
+        await interaction.deferUpdate();
+        await watch(true);
+        sendWebhookUpdate();
+        break;
+      
+      case "start_mint":
+
+        await serverAction(config.PVE.MINT, "start");
+        await interaction.reply({
+          content: "▶️ Lancement de la \`VM MINT\` lancé !",
+          ephemeral: true
+        });
+
+        break;
+      
+      case "stop_mint":
+
+        await serverAction(config.PVE.MINT, "stop");
+        await interaction.reply({
+          content: "🛑 Arret de la \`VM MINT\` lancé !",
+          ephemeral: true
+        });
+
+        break;
+    
+      case "restart_mint":
+        await serverAction(config.PVE.MINT, "restart");
+        await interaction.reply({
+          content: "🔃 Redémarrage de la \`VM MINT\` lancé !",
+          ephemeral: true
+        })
+
+        break;
+      
+      case "start_vm1":
+
+        await serverAction(config.PVE.VM1, "start");
+        await interaction.reply({
+          content: "▶️ Lancement de la \`VM1\` lancé !",
+          ephemeral: true
+        });
+
+        break;
+      
+      case "stop_vm1":
+
+        await serverAction(config.PVE.VM1, "stop");
+        await interaction.reply({
+          content: "🛑 Arret de la \`VM1\` lancé !",
+          ephemeral: true
+        });
+
+        break;
+    
+      case "restart_vm1":
+        await serverAction(config.PVE.VM1, "restart");
+        await interaction.reply({
+          content: "🔃 Redémarrage de la \`VM1\` lancé !",
+          ephemeral: true
+        })
+
+        break;
+      
+    
+      default:
+        break;
+    }
   }
 
   if (!interaction.isCommand()) return;

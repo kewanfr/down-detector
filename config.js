@@ -45,5 +45,13 @@ export default {
     webhookURL: process.env.DISCORD_WEBHOOK_URL_,
   },
 
+  PVE: {
+    HOST: "192.168.0.153",
+    API_ID: process.env.PVE_API_ID,
+    API_SECRET: process.env.PVE_API_SECRET,
+    VM1: "101",
+    MINT: "110"
+  },
+
   REFRESH_INTERVAL: 1000*60*1 // 1 minute (100ms * 60s * 1min)
 }
