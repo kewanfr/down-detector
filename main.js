@@ -158,7 +158,7 @@ const proxmoxClient = proxmoxApi({
   tokenID: config.PVE.API_ID,
   tokenSecret: config.PVE.API_SECRET
 });
-https://pve:8006/api2/extjs/nodes/pve/qemu/110/status/start
+
 const serverAction = (serverId, action = "start") => {
   switch (action) {
     case "start":
