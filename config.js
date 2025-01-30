@@ -25,6 +25,10 @@ export default {
     "VM1 PVE": {
       name: "VM1 PVE",
       ip: "192.168.0.156"
+    },
+    "VM COURS Mint": {
+      name: "VM COURS Mint",
+      ip: "192.168.0.156"
     }
   },
 
