@@ -156,7 +156,8 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 const proxmoxClient = proxmoxApi({
   host: config.PVE.HOST,
   tokenID: config.PVE.API_ID,
-  tokenSecret: config.PVE.API_SECRET
+  tokenSecret: config.PVE.API_SECRET,
+  port: config.PVE.PORT
 });
 
 const serverAction = async (serverId, action = "start") => {

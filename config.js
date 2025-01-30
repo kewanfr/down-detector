@@ -46,7 +46,8 @@ export default {
   },
 
   PVE: {
-    HOST: "192.168.0.153",
+    HOST: process.env.PVE_HOST || "192.168.0.153",
+    PORT: process.env.PVE_PORT || 8006,
     API_ID: process.env.PVE_API_ID,
     API_SECRET: process.env.PVE_API_SECRET,
     VM1: 101,
