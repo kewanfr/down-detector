@@ -35,7 +35,7 @@ export function statusEmbed(datas) {
         }
     }
 
-    embed.setDescription(`Mis à jour ${time(Date.now() / 1000, TimestampStyles.RelativeTime)}`);
+    embed.setDescription(`Mis à jour ${time((Date.now() / 1000).toFixed(0), TimestampStyles.RelativeTime)}`);
 
     return embed;
 }
