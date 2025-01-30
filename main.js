@@ -161,15 +161,17 @@ const proxmoxClient = proxmoxApi({
 });
 
 const serverAction = async (serverId, action = "start") => {
+
+  var err;
   switch (action) {
     case "start":
       try {
         
         let res = await proxmoxClient.nodes.$("pve").qemu.$(serverId).status.start.$post();
         console.log(res);
-        return true
+        err = false
       } catch (error) {
-        return false
+        err = error
       }
       break;
     
@@ -178,9 +180,9 @@ const serverAction = async (serverId, action = "start") => {
         
         let res = await proxmoxClient.nodes.$("pve").qemu.$(serverId).status.stop.$post();
         console.log(res);
-        return true
+        err = false
       } catch (error) {
-        return false
+        err = error
       }
       break;
     
@@ -189,17 +191,23 @@ const serverAction = async (serverId, action = "start") => {
         
         let res = await proxmoxClient.nodes.$("pve").qemu.$(serverId).status.reboot.$post();
         console.log(res);
-        return true
+        err = false
       } catch (error) {
-        return false
+        err = error
       }
       break;
   
     default:
       console.log(`Action ${action} inconnue sur la vm ${serverId}`);
-      return false
+      err = true
       break;
   }
+
+  setTimeout(() => {
+    watch(true);
+  }, 5000);
+
+  return err
 }
 
 const commands = [
